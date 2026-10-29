@@ -1,6 +1,8 @@
 'use client';
 
-/** Chunky candy "BLOCKY POP!" logo — per-letter pastel colors + mascot sidekick. */
+/** Chunky crystal "BLOCKY POP!" logo — per-letter pastel colors + gem sidekick. */
+
+import { GemIcon } from './icons';
 
 const BLOCK_COLORS: Array<{ color: string; shadow: string }> = [
   { color: '#FF6B9D', shadow: '#E14E7E' }, // B
@@ -56,29 +58,12 @@ export function Logo() {
             <Letter key={i} ch={ch} i={i} palette={BLOCK_COLORS} delay={`${0.1 + i * 0.12}s`} />
           ))}
         </h1>
-        {/* crown sits over the O (3rd letter) */}
-        <svg
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-          className="bb-logo-crown absolute"
-          style={{
-            width: 'clamp(2rem, 9vw, 2.7rem)',
-            top: 'clamp(-1.35rem, -5.6vw, -1rem)',
-            left: '50%',
-            transform: 'translateX(-58%) rotate(-7deg)',
-          }}
-        >
-          <path
-            d="M3 9 7.2 12.2 12 6.4 16.8 12.2 21 9 19.2 16.9c-.15.75-.8 1.4-1.7 1.4H6.5c-.9 0-1.55-.65-1.7-1.4L3 9Z"
-            fill="#FFC53D"
-            stroke="#E8960C"
-            strokeWidth="1.1"
-            strokeLinejoin="round"
-          />
-          <circle cx="3.2" cy="8" r="1.5" fill="#FFE082" stroke="#E8960C" strokeWidth="0.9" />
-          <circle cx="12" cy="5.4" r="1.5" fill="#FFE082" stroke="#E8960C" strokeWidth="0.9" />
-          <circle cx="20.8" cy="8" r="1.5" fill="#FFE082" stroke="#E8960C" strokeWidth="0.9" />
-        </svg>
+        {/* golden gem sits over the O (3rd letter) */}
+        <GemIcon
+          size={64}
+          color="#FFC53D"
+          className="bb-logo-gem absolute"
+        />
         {/* sparkle accents */}
         <svg
           viewBox="0 0 24 24"

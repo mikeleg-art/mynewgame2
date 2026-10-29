@@ -10,10 +10,10 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Blocky Pop! — Cozy Block Puzzle",
+  title: "Blocky Pop! — Cute Crystal Block Puzzle",
   description:
-    "The kawaii block puzzle mini app for Telegram. Drag candy blocks, fill lines, pop combos and watch the whole world change color with every blast!",
-  keywords: ["Blocky Pop", "block puzzle", "cute game", "kawaii", "Telegram", "mini app", "HTML5 game"],
+    "The cute crystal block puzzle mini app for Telegram. Drag sparkling gems, fill lines, pop dazzling combos and watch the whole world change color with every blast!",
+  keywords: ["Blocky Pop", "block puzzle", "crystal game", "cute game", "gems", "Telegram", "mini app", "HTML5 game"],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },

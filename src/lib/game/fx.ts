@@ -1,10 +1,10 @@
 /**
  * Tiny canvas particle engine for Blocky Pop!
- * Zero dependencies — stars, hearts, sparkles and confetti drawn on the fly.
+ * Zero dependencies — gems, crystal shards, stars and sparkles drawn on the fly.
  * The canvas is attached by the GameScreen and shared app-wide via singleton.
  */
 
-type Shape = 'star' | 'heart' | 'circle' | 'spark' | 'confetti';
+type Shape = 'gem' | 'shard' | 'star' | 'circle' | 'spark';
 
 type Particle = {
   x: number;
@@ -122,7 +122,7 @@ class FXEngine {
     this.kick();
   }
 
-  /** Confetti rain from the top of the screen. */
+  /** Crystal rain from the top of the screen. */
   rain(opts: RainOpts = {}): void {
     const { count = 80, colors = ['#ffffff'], duration = 1600, speed = 160 } = opts;
     this.rainColors = colors;
@@ -169,7 +169,7 @@ class FXEngine {
           ttl: rand(1.6, 2.6),
           size: rand(5, 10),
           color: pick(this.rainColors),
-          shape: pick(['confetti', 'star', 'heart', 'circle'] as Shape[]),
+          shape: pick(['gem', 'shard', 'star', 'circle'] as Shape[]),
           rot: rand(0, TAU),
           vr: rand(-6, 6),
           wobble: rand(0, TAU),
@@ -213,14 +213,14 @@ class FXEngine {
           ctx.closePath();
           ctx.fill();
           break;
-        case 'confetti':
-          ctx.fillRect(-s / 2, -s / 3.4, s, s / 1.7);
+        case 'gem':
+          drawGem(ctx, s);
+          break;
+        case 'shard':
+          drawShard(ctx, s);
           break;
         case 'star':
           drawStar(ctx, s);
-          break;
-        case 'heart':
-          drawHeart(ctx, s);
           break;
       }
       ctx.restore();
@@ -250,18 +250,56 @@ function drawStar(ctx: CanvasRenderingContext2D, s: number): void {
   ctx.fill();
 }
 
-function drawHeart(ctx: CanvasRenderingContext2D, s: number): void {
-  const w = s / 1.5;
+/** Cute faceted rhombus gem. */
+function drawGem(ctx: CanvasRenderingContext2D, s: number): void {
+  const r = s / 1.7;
   ctx.beginPath();
-  ctx.moveTo(0, w * 0.32);
-  ctx.bezierCurveTo(w * 0.5, -w * 0.28, w * 1.05, w * 0.34, 0, w * 0.95);
-  ctx.bezierCurveTo(-w * 1.05, w * 0.34, -w * 0.5, -w * 0.28, 0, w * 0.32);
+  ctx.moveTo(0, -r);
+  ctx.lineTo(r * 0.72, 0);
+  ctx.lineTo(0, r);
+  ctx.lineTo(-r * 0.72, 0);
   ctx.closePath();
   ctx.fill();
+  // facet highlight
+  ctx.save();
+  ctx.globalAlpha *= 0.55;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.lineTo(r * 0.72, 0);
+  ctx.lineTo(0, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/** Long sharp crystal shard. */
+function drawShard(ctx: CanvasRenderingContext2D, s: number): void {
+  const r = s / 1.6;
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.quadraticCurveTo(r * 0.32, -r * 0.2, r * 0.26, r * 0.55);
+  ctx.lineTo(0, r * 0.9);
+  ctx.lineTo(-r * 0.26, r * 0.55);
+  ctx.quadraticCurveTo(-r * 0.32, -r * 0.2, 0, -r);
+  ctx.closePath();
+  ctx.fill();
+  // glint down the middle
+  ctx.save();
+  ctx.globalAlpha *= 0.6;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(0, -r * 0.85);
+  ctx.lineTo(r * 0.14, 0);
+  ctx.lineTo(0, r * 0.75);
+  ctx.lineTo(-r * 0.05, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 export const fx = new FXEngine();
 
 /** Handy palettes */
-export const CANDY = ['#ff7eb9', '#ffd93d', '#6ee7b7', '#7cc0ff', '#c4a5ff', '#ff9d76', '#ffffff'];
+export const GEMS = ['#ff8cc8', '#ffd84d', '#5ed77a', '#6fb6ff', '#c08bff', '#4ed8da', '#ffffff'];
 export const GOLD = ['#ffd93d', '#ffe98a', '#ffb300', '#ffffff'];

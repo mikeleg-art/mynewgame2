@@ -1,6 +1,6 @@
 'use client';
 
-import { CrownIcon } from './icons';
+import { CrownIcon, GemIcon } from './icons';
 import { Mascot } from './Mascot';
 import { Modal } from './Modal';
 import { sfx } from '@/lib/sound';
@@ -20,8 +20,10 @@ export function GameOverModal({ open, score, best, isNewBest, onRestart, onMenu 
       <div className="flex flex-col items-center text-center">
         {isNewBest ? (
           <>
-            <div className="bb-ribbon mb-1 rounded-full bg-gradient-to-r from-[#FF6B9D] to-[#FFC53D] px-4 py-1 text-sm font-bold text-white shadow">
-              ✦ NEW BEST! ✦
+            <div className="bb-ribbon mb-1 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF6B9D] to-[#FFC53D] px-4 py-1 text-sm font-bold text-white shadow">
+              <GemIcon size={14} color="#FFF3B0" />
+              <span>NEW BEST!</span>
+              <GemIcon size={14} color="#FFF3B0" />
             </div>
             <Mascot size={92} mood="wow" crown className="bb-mascot-bounce" />
           </>

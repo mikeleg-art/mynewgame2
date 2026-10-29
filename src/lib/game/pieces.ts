@@ -86,16 +86,16 @@ export const SHAPES: Shape[] = DEFS.map((d, i) => parse(d[0], d[1], i));
 
 const TOTAL_WEIGHT = SHAPES.reduce((s, sh) => s + sh.weight, 0);
 
-/** Blocky Pop! candy palette — bright pastels that kawaii faces love. */
+/** Blocky Pop! gem palette — juicy crystal tones that sparkle on the board. */
 export const COLORS: Array<{ base: string; light: string; dark: string }> = [
-  { base: '#5ED77A', light: '#A8F0B8', dark: '#2FA556' }, // apple green
-  { base: '#FFA45C', light: '#FFD0A3', dark: '#F07E1F' }, // peachy orange
-  { base: '#FFD84D', light: '#FFF0A8', dark: '#F0B400' }, // banana yellow
-  { base: '#FF6B81', light: '#FFA8B5', dark: '#E93A56' }, // strawberry
-  { base: '#6FB6FF', light: '#B0DBFF', dark: '#2F8BE8' }, // blueberry
-  { base: '#C08BFF', light: '#E0C4FF', dark: '#9550EA' }, // grape
-  { base: '#4ED8DA', light: '#A0EFEF', dark: '#1FA9AB' }, // mint teal
-  { base: '#FF8CC8', light: '#FFC3E2', dark: '#F05FA4' }, // bubblegum pink
+  { base: '#5ED77A', light: '#B7F5C9', dark: '#2FA556' }, // peridot green
+  { base: '#FFA45C', light: '#FFD6AD', dark: '#F07E1F' }, // topaz orange
+  { base: '#FFD84D', light: '#FFF3B0', dark: '#F0B400' }, // citrine yellow
+  { base: '#FF6B81', light: '#FFB3BF', dark: '#E93A56' }, // ruby rose
+  { base: '#6FB6FF', light: '#B8DDFF', dark: '#2F8BE8' }, // sapphire blue
+  { base: '#C08BFF', light: '#E3CBFF', dark: '#9550EA' }, // amethyst purple
+  { base: '#4ED8DA', light: '#ABF2F1', dark: '#1FA9AB' }, // aquamarine teal
+  { base: '#FF8CC8', light: '#FFC9E5', dark: '#F05FA4' }, // rose quartz pink
 ];
 
 export function randomShapeIdx(): number {

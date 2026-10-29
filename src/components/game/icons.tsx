@@ -83,3 +83,44 @@ export function DiamondIcon({ size = 40, className = '' }: { size?: number; clas
     </svg>
   );
 }
+
+/**
+ * Cute faceted crystal gem — tintable via `color` and id-free (opacity
+ * overlays instead of gradients) so many can shimmer on screen at once.
+ */
+export function GemIcon({
+  size = 24,
+  color = '#FF9BDE',
+  className = '',
+}: {
+  size?: number;
+  color?: string;
+  className?: string;
+}) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
+      {/* squishy rounded rhombus body */}
+      <path
+        d="M12 1.8c1 0 1.9.5 2.5 1.3l6 6.9c1 1.1 1 2.9 0 4l-6 6.9c-1.3 1.5-3.7 1.5-5 0l-6-6.9c-1-1.1-1-2.9 0-4l6-6.9C10.1 2.3 11 1.8 12 1.8Z"
+        fill={color}
+        stroke="rgba(255,255,255,0.85)"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      {/* top facet */}
+      <path
+        d="M12 4.2 16.8 12h-9.6L12 4.2Z"
+        fill="#ffffff"
+        opacity="0.55"
+      />
+      {/* side facet shading */}
+      <path d="M12 12h4.8L12 19.8 12 12Z" fill="#000000" opacity="0.1" />
+      {/* sparkle glint */}
+      <path
+        d="M8.4 5.2l.62 1.68 1.68.62-1.68.62-.62 1.68-.62-1.68-1.68-.62 1.68-.62.62-1.68Z"
+        fill="#ffffff"
+        opacity="0.95"
+      />
+    </svg>
+  );
+}

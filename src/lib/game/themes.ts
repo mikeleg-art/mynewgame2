@@ -1,12 +1,14 @@
 /**
- * Cute pastel themes for Blocky Pop!
+ * Cute crystal worlds for Blocky Pop!
  * The whole page re-themes with a dreamy crossfade every time the player
- * clears lines — each theme has its own name, vibe and decoration colors.
+ * clears lines — each world is named after a gemstone and has its own
+ * palette and decoration colors.
  */
 
 export type CuteTheme = {
   name: string;
-  emoji: string;
+  /** Light gem tone used for the little crystal icon in the theme popup */
+  gem: string;
   /** Page background: 3-stop vertical gradient (top → bottom) */
   page: [string, string, string];
   /** Board frame (solid color — animates smoothly) */
@@ -17,64 +19,64 @@ export type CuteTheme = {
   accent: string;
   /** Telegram header / background color */
   header: string;
-  /** Colors of floating decorations (clouds, hearts, stars) */
+  /** Colors of floating decorations (clouds, gems, sparkles) */
   decor: string[];
 };
 
 export const THEMES: CuteTheme[] = [
   {
-    name: 'Bubblegum',
-    emoji: '🌸',
-    page: ['#ffd9ef', '#ffabd8', '#f57fc0'],
+    name: 'Rose Quartz',
+    gem: '#ffd1e6',
+    page: ['#ffe0ef', '#ffb3d6', '#ff87c4'],
     panel: '#b34f91',
     cell: '#cf6fae',
     accent: '#ff5fb0',
-    header: '#f57fc0',
+    header: '#ff87c4',
     decor: ['#ffffff', '#ffe3f2', '#ffc7e6'],
   },
   {
-    name: 'Minty',
-    emoji: '🌿',
-    page: ['#d8f7e8', '#a9e9cb', '#7cd8ae'],
+    name: 'Peridot',
+    gem: '#c2f4d8',
+    page: ['#d9f7e8', '#a5e9c9', '#77d8a9'],
     panel: '#3f9d78',
     cell: '#66bd96',
     accent: '#2fbf8f',
-    header: '#7cd8ae',
+    header: '#77d8a9',
     decor: ['#ffffff', '#e2fbf0', '#bdf2dc'],
   },
   {
-    name: 'Bubbly Sky',
-    emoji: '☁️',
-    page: ['#dcedff', '#aed8ff', '#82bcf8'],
-    panel: '#3d7cc9',
-    cell: '#6ba2dd',
+    name: 'Aquamarine',
+    gem: '#c4edff',
+    page: ['#dcf6ff', '#a9dff7', '#7ac2ea'],
+    panel: '#3a7fc4',
+    cell: '#66a8d9',
     accent: '#3f9bff',
-    header: '#82bcf8',
+    header: '#7ac2ea',
     decor: ['#ffffff', '#eef7ff', '#cfe6ff'],
   },
   {
-    name: 'Peachy',
-    emoji: '🍑',
-    page: ['#ffead9', '#ffcaa6', '#ffab77'],
+    name: 'Citrine',
+    gem: '#ffe4b8',
+    page: ['#ffeedb', '#ffcba4', '#ffa974'],
     panel: '#d97b3f',
     cell: '#eb9f68',
     accent: '#ff8c42',
-    header: '#ffab77',
+    header: '#ffa974',
     decor: ['#ffffff', '#fff3e6', '#ffdec2'],
   },
   {
-    name: 'Lavender',
-    emoji: '💜',
-    page: ['#eddcff', '#cdb3f7', '#a989ec'],
+    name: 'Amethyst',
+    gem: '#e2cdff',
+    page: ['#eeddff', '#cdb2f7', '#a685ec'],
     panel: '#7151c2',
     cell: '#9478d8',
     accent: '#9d5cff',
-    header: '#a989ec',
+    header: '#a685ec',
     decor: ['#ffffff', '#f4ebff', '#dcc8ff'],
   },
   {
-    name: 'Lemon',
-    emoji: '🍋',
+    name: 'Golden Topaz',
+    gem: '#fff0b0',
     page: ['#fff8d6', '#ffe992', '#ffd75e'],
     panel: '#d99e1f',
     cell: '#e9bc4e',

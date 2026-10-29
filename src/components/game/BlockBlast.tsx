@@ -45,18 +45,20 @@ function Decor() {
           fill="currentColor"
         />
       </svg>
-      {/* hearts */}
+      {/* floating crystals */}
       <svg className="bb-float-slow absolute right-[10%] bottom-[12%] w-8 text-white/55" viewBox="0 0 24 24">
         <path
-          d="M12 21c-6-4.6-9-8-9-11.4C3 6.6 5.2 4.5 8 4.5c1.7 0 3.2.9 4 2.2.8-1.3 2.3-2.2 4-2.2 2.8 0 5 2.1 5 5.1C21 13 18 16.4 12 21Z"
+          d="M12 2.5 19.5 12 12 21.5 4.5 12 12 2.5Z"
           fill="currentColor"
         />
+        <path d="M12 2.5 19.5 12h-7.5V2.5Z" fill="#ffffff" opacity="0.5" />
       </svg>
       <svg className="bb-float-slow absolute left-[13%] top-[38%] w-6 text-white/50" viewBox="0 0 24 24" style={{ animationDelay: '1.6s' }}>
         <path
-          d="M12 21c-6-4.6-9-8-9-11.4C3 6.6 5.2 4.5 8 4.5c1.7 0 3.2.9 4 2.2.8-1.3 2.3-2.2 4-2.2 2.8 0 5 2.1 5 5.1C21 13 18 16.4 12 21Z"
+          d="M12 2.5 19.5 12 12 21.5 4.5 12 12 2.5Z"
           fill="currentColor"
         />
+        <path d="M12 2.5 19.5 12h-7.5V2.5Z" fill="#ffffff" opacity="0.5" />
       </svg>
       {/* stars */}
       <svg className="bb-twinkle absolute right-[16%] top-[8%] w-7 text-white/70" viewBox="0 0 24 24">

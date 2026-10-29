@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { CrownIcon, DiamondIcon, GearIcon } from './icons';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { CrownIcon, DiamondIcon, GearIcon, GemIcon } from './icons';
 import { Volume2, VolumeX } from 'lucide-react';
 import { COLORS, SHAPES, generateTray } from '@/lib/game/pieces';
 import type { TrayPiece } from '@/lib/game/pieces';
@@ -20,14 +20,14 @@ import {
 import type { Board, LineState } from '@/lib/game/engine';
 import { sfx } from '@/lib/sound';
 import { hapticImpact, hapticNotify } from '@/lib/telegram';
-import { fx, CANDY } from '@/lib/game/fx';
+import { fx, GEMS } from '@/lib/game/fx';
 import { THEMES } from '@/lib/game/themes';
 import { GameOverModal } from './GameOverModal';
 import { SettingsModal } from './SettingsModal';
 
 const GAP = 3;
 
-const COMBO_WORDS = ['Nice!', 'Sweet!', 'Yummy!', 'Amazing!', 'SQUEEE!', 'UNSTOPPABLE!'];
+const COMBO_WORDS = ['Nice!', 'Sweet!', 'Dazzling!', 'Radiant!', 'BRILLIANT!', 'UNSTOPPABLE!'];
 
 type DragState = {
   pieceIdx: number;
@@ -216,7 +216,7 @@ export function GameScreen({
     return { x: rect.left + c * step + cell / 2, y: rect.top + r * step + cell / 2 };
   }
 
-  function addPopup(text: string, x: number, y: number, big: boolean, ms = 950): void {
+  function addPopup(text: ReactNode, x: number, y: number, big: boolean, ms = 950): void {
     const pid = ++fxId;
     setPopups((p) => [...p, { id: pid, x, y, text, big }]);
     window.setTimeout(() => setPopups((p) => p.filter((x2) => x2.id !== pid)), ms);
@@ -295,8 +295,8 @@ export function GameScreen({
             const mid = cellCenter(rect, cell, step, r, (N - 1) / 2);
             fx.burst(mid.x, mid.y, {
               count: 18,
-              colors: CANDY,
-              shapes: ['star', 'heart', 'circle'],
+              colors: GEMS,
+              shapes: ['gem', 'shard', 'star'],
               speed: 320,
               gravity: 480,
               size: 9,
@@ -309,8 +309,8 @@ export function GameScreen({
             const mid = cellCenter(rect, cell, step, (N - 1) / 2, c);
             fx.burst(mid.x, mid.y, {
               count: 18,
-              colors: CANDY,
-              shapes: ['star', 'heart', 'circle'],
+              colors: GEMS,
+              shapes: ['gem', 'shard', 'star'],
               speed: 320,
               gravity: 480,
               size: 9,
@@ -320,14 +320,24 @@ export function GameScreen({
         }
       }
 
-      // ★ THE STAR FEATURE — the whole world re-themes after every clear ★
+      // THE SPARKLE FEATURE — the whole world re-themes after every clear
       onThemeNext();
       sfx.whoosh();
       const fk = ++fxId;
       setFlashKey(fk);
       window.setTimeout(() => setFlashKey((k) => (k === fk ? 0 : k)), 650);
       const nextIdx = (themeIdx + 1) % THEMES.length;
-      addPopup(`${THEMES[nextIdx].emoji} ${THEMES[nextIdx].name}`, (N / 2) * step, 1.6 * step, true, 1100);
+      const nt2 = THEMES[nextIdx];
+      addPopup(
+        <span className="inline-flex items-center gap-2">
+          <GemIcon size={26} color={nt2.gem} />
+          {nt2.name}
+        </span>,
+        (N / 2) * step,
+        1.6 * step,
+        true,
+        1100
+      );
 
       // shake on multi-line blasts
       if (cleared >= 2) {
@@ -355,7 +365,7 @@ export function GameScreen({
         setTarget(tg);
         sfx.levelUp();
         hapticNotify('success', haptics);
-        addPopup(`LEVEL ${lv}! ★`, (N / 2) * step, (N / 2) * step, true);
+        addPopup(`LEVEL ${lv}!`, (N / 2) * step, (N / 2) * step, true);
       }
     }
 
@@ -363,8 +373,8 @@ export function GameScreen({
     if (!bestMomentShown.current && bestAtStart.current > 0 && newScore > bestAtStart.current) {
       bestMomentShown.current = true;
       sfx.best();
-      fx.rain({ count: 70, colors: CANDY, duration: 1300, speed: 150 });
-      addPopup('✦ NEW BEST! ✦', (N / 2) * step, 1.4 * step, true, 1400);
+      fx.rain({ count: 70, colors: GEMS, duration: 1300, speed: 150 });
+      addPopup('NEW BEST!', (N / 2) * step, 1.4 * step, true, 1400);
       hapticNotify('success', haptics);
     }
 
@@ -393,8 +403,8 @@ export function GameScreen({
         if (rect) {
           fx.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, {
             count: 14,
-            colors: CANDY,
-            shapes: ['heart', 'star'],
+            colors: GEMS,
+            shapes: ['gem', 'star'],
             speed: 260,
             gravity: 300,
             size: 8,
@@ -414,7 +424,7 @@ export function GameScreen({
       window.setTimeout(() => {
         sfx.gameOver();
         hapticNotify('error', haptics);
-        if (wasBest) fx.rain({ count: 130, colors: CANDY, duration: 2400, speed: 170 });
+        if (wasBest) fx.rain({ count: 130, colors: GEMS, duration: 2400, speed: 170 });
         setGameOver(true);
         onFinish(finalScore);
       }, 550);

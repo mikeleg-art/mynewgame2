@@ -3,7 +3,7 @@
 import { AlarmClock, Gamepad2, Infinity as InfinityIcon } from 'lucide-react';
 import { Logo } from './Logo';
 import { Mascot } from './Mascot';
-import { MedalIcon, WinBadge } from './icons';
+import { GemIcon, MedalIcon, WinBadge } from './icons';
 
 type Props = {
   dailyCount: number;
@@ -33,8 +33,10 @@ export function MenuScreen({ dailyCount, best, onAdventure, onClassic, onMoreGam
 
       {/* Daily victories card */}
       <div className="w-full max-w-[340px] overflow-hidden rounded-2xl bg-white shadow-[0_6px_0_rgba(225,78,126,0.30),0_12px_24px_rgba(107,43,84,0.22)] ring-2 ring-white">
-        <div className="bg-[#FF8CC8]/95 py-1.5 text-center text-[15px] font-bold text-white drop-shadow-sm">
-          ✿ Consecutive Daily Victories ✿
+        <div className="flex items-center justify-center gap-1.5 bg-[#FF8CC8]/95 py-1.5 text-center text-[15px] font-bold text-white drop-shadow-sm">
+          <GemIcon size={15} color="#FFE0F0" />
+          <span>Consecutive Daily Victories</span>
+          <GemIcon size={15} color="#FFE0F0" />
         </div>
         <div className="flex items-center justify-center gap-4 px-6 py-3.5">
           <WinBadge size={54} />
