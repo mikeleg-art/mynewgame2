@@ -1,0 +1,10 @@
+{
+  "name": "crystal-pop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Crystal Pop! - cute crystal gem block puzzle (Telegram Mini App ready)",
+  "scripts": {
+    "dev": "npx --yes serve -l 3000 .",
+    "deploy": "vercel --prod"
+  }
+}
