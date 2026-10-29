@@ -10,10 +10,10 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Block Blast — Adventure Master",
+  title: "Blocky Pop! — Cozy Block Puzzle",
   description:
-    "The classic block puzzle game as a Telegram HTML5 mini app. Drag blocks, fill lines, blast combos and beat your best score!",
-  keywords: ["Block Blast", "puzzle", "Telegram", "mini app", "HTML5 game", "block puzzle"],
+    "The kawaii block puzzle mini app for Telegram. Drag candy blocks, fill lines, pop combos and watch the whole world change color with every blast!",
+  keywords: ["Blocky Pop", "block puzzle", "cute game", "kawaii", "Telegram", "mini app", "HTML5 game"],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#1565d8",
+  themeColor: "#ff8cc8",
 };
 
 export default function RootLayout({

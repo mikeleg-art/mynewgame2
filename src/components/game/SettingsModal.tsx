@@ -33,12 +33,14 @@ function ToggleRow({
       className="flex w-full items-center justify-between rounded-2xl bg-white/70 px-4 py-3 transition active:scale-[0.98]"
       aria-pressed={on}
     >
-      <span className="flex items-center gap-2 font-bold text-[#6B4A2B]">
+      <span className="flex items-center gap-2 font-bold text-[#8C3A68]">
         {icon}
         {label}
       </span>
       <span
-        className={`relative h-7 w-12 rounded-full transition-colors ${on ? 'bg-[#43D96B]' : 'bg-[#C9BBA8]'}`}
+        className={`relative h-7 w-12 rounded-full transition-colors ${
+          on ? 'bg-[#5ED77A]' : 'bg-[#E8C7DA]'
+        }`}
       >
         <span
           className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
@@ -70,11 +72,11 @@ export function SettingsModal({
             sfx.click();
             onClose();
           }}
-          className="absolute -right-1 -top-1 rounded-full bg-[#EAD9BE] p-1.5 text-[#8A6B4A] transition active:scale-90"
+          className="absolute -right-1 -top-1 rounded-full bg-[#FFD6EC] p-1.5 text-[#C9639A] transition active:scale-90"
         >
           <X size={18} />
         </button>
-        <h2 id="bb-settings-title" className="mb-1 text-center text-xl font-bold text-[#6B4A2B]">
+        <h2 id="bb-settings-title" className="mb-1 text-center text-xl font-bold text-[#E14E7E]">
           Settings
         </h2>
 
@@ -100,7 +102,7 @@ export function SettingsModal({
         <div className="mt-2 flex flex-col gap-2.5">
           <button
             type="button"
-            className="bb-btn bb-btn-orange w-full"
+            className="bb-btn bb-btn-pink w-full"
             onClick={() => {
               sfx.click();
               onRestart();

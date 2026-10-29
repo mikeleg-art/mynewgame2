@@ -109,6 +109,36 @@ class SoundFX {
     notes.forEach((f, i) => this.tone(f, 0.22, { type: 'triangle', gain: 0.1, delay: i * 0.16 }));
   }
 
+  /** Dreamy sweep used when the page re-themes after a clear. */
+  whoosh(): void {
+    if (!this.enabled) return;
+    const ctx = this.ac();
+    if (!ctx) return;
+    const t0 = ctx.currentTime;
+    const frames = Math.floor(ctx.sampleRate * 0.5);
+    const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * Math.sin((i / frames) * Math.PI);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 1.4;
+    filter.frequency.setValueAtTime(500, t0);
+    filter.frequency.exponentialRampToValueAtTime(2400, t0 + 0.4);
+    const g = ctx.createGain();
+    g.gain.value = 0.07;
+    src.connect(filter).connect(g).connect(ctx.destination);
+    src.start(t0);
+    this.tone(880, 0.3, { type: 'sine', gain: 0.05, slideTo: 1320 });
+  }
+
+  /** Tiny twinkles — placement puffs & ambience. */
+  sparkle(): void {
+    const notes = [1568, 2093];
+    notes.forEach((f, i) => this.tone(f, 0.09, { type: 'sine', gain: 0.05, delay: i * 0.06 }));
+  }
+
   best(): void {
     const notes = [523.25, 659.25, 783.99, 1046.5];
     notes.forEach((f, i) => this.tone(f, 0.16, { type: 'triangle', gain: 0.12, delay: i * 0.1 }));

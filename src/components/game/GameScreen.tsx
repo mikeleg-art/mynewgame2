@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CrownIcon, DiamondIcon, GearIcon } from './icons';
+import { Volume2, VolumeX } from 'lucide-react';
 import { COLORS, SHAPES, generateTray } from '@/lib/game/pieces';
 import type { TrayPiece } from '@/lib/game/pieces';
 import {
@@ -19,10 +20,14 @@ import {
 import type { Board, LineState } from '@/lib/game/engine';
 import { sfx } from '@/lib/sound';
 import { hapticImpact, hapticNotify } from '@/lib/telegram';
+import { fx, CANDY } from '@/lib/game/fx';
+import { THEMES } from '@/lib/game/themes';
 import { GameOverModal } from './GameOverModal';
 import { SettingsModal } from './SettingsModal';
 
 const GAP = 3;
+
+const COMBO_WORDS = ['Nice!', 'Sweet!', 'Yummy!', 'Amazing!', 'SQUEEE!', 'UNSTOPPABLE!'];
 
 type DragState = {
   pieceIdx: number;
@@ -50,9 +55,11 @@ type Props = {
   best: number;
   sound: boolean;
   haptics: boolean;
+  themeIdx: number;
   onExit: () => void;
   onFinish: (score: number) => void;
   onNewBest: (best: number) => void;
+  onThemeNext: () => void;
   onToggleSound: () => void;
   onToggleHaptics: () => void;
 };
@@ -64,14 +71,16 @@ export function GameScreen({
   best,
   sound,
   haptics,
+  themeIdx,
   onExit,
   onFinish,
   onNewBest,
+  onThemeNext,
   onToggleSound,
   onToggleHaptics,
 }: Props) {
   const [board, setBoard] = useState<Board>(() => createBoard());
-  const [tray, setTray] = useState<TrayPiece[]>(() =>
+  const [tray, setTray] = useState<(TrayPiece | null)[]>(() =>
     generateTray(createBoard(), (bd, si) => hasPlacement(bd as Board, si))
   );
   const [score, setScore] = useState(0);
@@ -85,13 +94,23 @@ export function GameScreen({
   const [combo, setCombo] = useState<{ id: number; text: string } | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
+  const [flashKey, setFlashKey] = useState(0);
 
   const gridRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const boardRef = useRef<Board>(board);
   boardRef.current = board;
   const bestAtStart = useRef(best);
+  const bestMomentShown = useRef(false);
   const isNewBest = score > bestAtStart.current;
+
+  // Attach the particle canvas.
+  useEffect(() => {
+    if (canvasRef.current) fx.attach(canvasRef.current);
+    return () => fx.detach();
+  }, []);
 
   // Keep cell metrics in sync with layout.
   useEffect(() => {
@@ -192,8 +211,19 @@ export function GameScreen({
     window.removeEventListener('pointercancel', onCancel);
   }
 
+  /** Viewport-space center of a board cell (for particles). */
+  function cellCenter(rect: DOMRect, cell: number, step: number, r: number, c: number): { x: number; y: number } {
+    return { x: rect.left + c * step + cell / 2, y: rect.top + r * step + cell / 2 };
+  }
+
+  function addPopup(text: string, x: number, y: number, big: boolean, ms = 950): void {
+    const pid = ++fxId;
+    setPopups((p) => [...p, { id: pid, x, y, text, big }]);
+    window.setTimeout(() => setPopups((p) => p.filter((x2) => x2.id !== pid)), ms);
+  }
+
   function commit(st: DragState): void {
-    const { shapeIdx, colorIdx, pieceIdx, r0, c0, step } = st;
+    const { shapeIdx, colorIdx, pieceIdx, r0, c0, step, cell } = st;
     const shape = SHAPES[shapeIdx];
     let b = placePiece(boardRef.current, shapeIdx, r0, c0, colorIdx);
     const placedPts = shape.cells.length;
@@ -204,38 +234,110 @@ export function GameScreen({
     const gain = placedPts + bonus;
     let newScore = score + gain;
 
-    // cell pop fx for cleared lines
+    const rect = gridRef.current?.getBoundingClientRect() ?? null;
+
+    // placement puff — tiny happy sparkles where the piece landed
+    if (rect) {
+      const mid = cellCenter(rect, cell, step, r0 + (shape.h - 1) / 2, c0 + (shape.w - 1) / 2);
+      fx.burst(mid.x, mid.y, {
+        count: 7,
+        colors: ['#ffffff', COLORS[colorIdx].light],
+        shapes: ['spark', 'circle'],
+        speed: 110,
+        gravity: 260,
+        size: 5,
+        ttl: 0.5,
+      });
+    }
+
+    // line-clear party: pops, particles, theme change, shake
     if (cleared > 0) {
       const fid = ++fxId;
       const newPops: CellPop[] = [];
+      const seen = new Set<string>();
       for (let r = 0; r < N; r++) {
         if (lines.rows[r]) {
-          for (let c = 0; c < N; c++) if (b[r][c] !== null) newPops.push({ id: fid, r, c, color: b[r][c]! });
+          for (let c = 0; c < N; c++)
+            if (b[r][c] !== null) {
+              newPops.push({ id: fid, r, c, color: b[r][c]! });
+              seen.add(`${r}-${c}`);
+            }
         }
       }
       for (let c = 0; c < N; c++) {
         if (lines.cols[c]) {
-          for (let r = 0; r < N; r++) if (b[r][c] !== null) newPops.push({ id: fid, r, c, color: b[r][c]! });
+          for (let r = 0; r < N; r++)
+            if (b[r][c] !== null && !seen.has(`${r}-${c}`)) {
+              newPops.push({ id: fid, r, c, color: b[r][c]! });
+            }
         }
       }
       setPops((p) => [...p, ...newPops]);
-      window.setTimeout(() => setPops((p) => p.filter((x) => x.id !== fid)), 520);
+      window.setTimeout(() => setPops((p) => p.filter((x) => x.id !== fid)), 620);
       b = clearLines(b, lines).board;
+
+      // confetti-ish bursts per cell + big bursts along each cleared line
+      if (rect) {
+        for (const cp of newPops) {
+          const mid = cellCenter(rect, cell, step, cp.r, cp.c);
+          fx.burst(mid.x, mid.y, {
+            count: 3,
+            colors: [COLORS[cp.color].light, COLORS[cp.color].base, '#ffffff'],
+            shapes: ['circle', 'spark'],
+            speed: 170,
+            gravity: 520,
+            size: 5,
+            ttl: 0.6,
+          });
+        }
+        for (let r = 0; r < N; r++) {
+          if (lines.rows[r]) {
+            const mid = cellCenter(rect, cell, step, r, (N - 1) / 2);
+            fx.burst(mid.x, mid.y, {
+              count: 18,
+              colors: CANDY,
+              shapes: ['star', 'heart', 'circle'],
+              speed: 320,
+              gravity: 480,
+              size: 9,
+              ttl: 0.9,
+            });
+          }
+        }
+        for (let c = 0; c < N; c++) {
+          if (lines.cols[c]) {
+            const mid = cellCenter(rect, cell, step, (N - 1) / 2, c);
+            fx.burst(mid.x, mid.y, {
+              count: 18,
+              colors: CANDY,
+              shapes: ['star', 'heart', 'circle'],
+              speed: 320,
+              gravity: 480,
+              size: 9,
+              ttl: 0.9,
+            });
+          }
+        }
+      }
+
+      // ★ THE STAR FEATURE — the whole world re-themes after every clear ★
+      onThemeNext();
+      sfx.whoosh();
+      const fk = ++fxId;
+      setFlashKey(fk);
+      window.setTimeout(() => setFlashKey((k) => (k === fk ? 0 : k)), 650);
+      const nextIdx = (themeIdx + 1) % THEMES.length;
+      addPopup(`${THEMES[nextIdx].emoji} ${THEMES[nextIdx].name}`, (N / 2) * step, 1.6 * step, true, 1100);
+
+      // shake on multi-line blasts
+      if (cleared >= 2) {
+        setShakeKey((k) => k + 1);
+        hapticImpact('medium', haptics);
+      }
     }
 
     // floating score popup at the drop location
-    const pid = ++fxId;
-    setPopups((p) => [
-      ...p,
-      {
-        id: pid,
-        x: (c0 + shape.w / 2) * step,
-        y: (r0 + shape.h / 2) * step,
-        text: `+${gain}`,
-        big: cleared > 0,
-      },
-    ]);
-    window.setTimeout(() => setPopups((p) => p.filter((x) => x.id !== pid)), 950);
+    addPopup(`+${gain}`, (c0 + shape.w / 2) * step, (r0 + shape.h / 2) * step, cleared > 0);
 
     // adventure level progression
     if (mode === 'adventure') {
@@ -253,18 +355,24 @@ export function GameScreen({
         setTarget(tg);
         sfx.levelUp();
         hapticNotify('success', haptics);
-        const cid = ++fxId;
-        setPopups((p) => [...p, { id: cid, x: (N / 2) * step, y: (N / 2) * step, text: `LEVEL ${lv}!`, big: true }]);
-        window.setTimeout(() => setPopups((p) => p.filter((x) => x.id !== cid)), 950);
+        addPopup(`LEVEL ${lv}! ★`, (N / 2) * step, (N / 2) * step, true);
       }
     }
 
+    // first time crossing your best this game — celebrate!
+    if (!bestMomentShown.current && bestAtStart.current > 0 && newScore > bestAtStart.current) {
+      bestMomentShown.current = true;
+      sfx.best();
+      fx.rain({ count: 70, colors: CANDY, duration: 1300, speed: 150 });
+      addPopup('✦ NEW BEST! ✦', (N / 2) * step, 1.4 * step, true, 1400);
+      hapticNotify('success', haptics);
+    }
+
     // tray bookkeeping + refill
-    const nt = tray.slice();
+    let nt: Array<TrayPiece | null> = tray.slice();
     nt[pieceIdx] = null;
     if (nt.every((x) => x === null)) {
-      nt.length = 0;
-      nt.push(...generateTray(b, (bd, si) => hasPlacement(bd as Board, si)));
+      nt = generateTray(b, (bd, si) => hasPlacement(bd as Board, si));
     }
     if (newScore > bestAtStart.current) onNewBest(newScore);
 
@@ -277,10 +385,22 @@ export function GameScreen({
       sfx.clear(cleared);
       hapticNotify('success', haptics);
       if (newStreak >= 2) {
+        const word = COMBO_WORDS[Math.min(newStreak, COMBO_WORDS.length) - 1];
         const cid = ++fxId;
-        setCombo({ id: cid, text: `COMBO ×${newStreak}` });
+        setCombo({ id: cid, text: `${word} ×${newStreak}` });
         sfx.combo(newStreak);
         window.setTimeout(() => setCombo((cb) => (cb && cb.id === cid ? null : cb)), 1000);
+        if (rect) {
+          fx.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, {
+            count: 14,
+            colors: CANDY,
+            shapes: ['heart', 'star'],
+            speed: 260,
+            gravity: 300,
+            size: 8,
+            ttl: 0.8,
+          });
+        }
       }
     } else {
       sfx.place();
@@ -289,11 +409,14 @@ export function GameScreen({
 
     // game over?
     if (!anyMoveAvailable(b, nt.map((x) => (x ? x.shapeIdx : null)))) {
+      const finalScore = newScore;
+      const wasBest = finalScore > bestAtStart.current && bestAtStart.current > 0;
       window.setTimeout(() => {
         sfx.gameOver();
         hapticNotify('error', haptics);
+        if (wasBest) fx.rain({ count: 130, colors: CANDY, duration: 2400, speed: 170 });
         setGameOver(true);
-        onFinish(newScore);
+        onFinish(finalScore);
       }, 550);
     }
   }
@@ -311,7 +434,8 @@ export function GameScreen({
     setPops([]);
     setPopups([]);
     setCombo(null);
-    bestAtStart.current = 0; // score resets, so best flag recomputes from scratch
+    bestAtStart.current = best; // fix: compare against the real best, not 0
+    bestMomentShown.current = false;
     sfx.click();
   }
 
@@ -322,6 +446,9 @@ export function GameScreen({
 
   return (
     <div className="relative flex h-full w-full select-none flex-col items-center px-3 pb-3 pt-2">
+      {/* particle canvas (over everything, incl. modals — pure eye candy) */}
+      <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-[70]" />
+
       {/* top bar */}
       <div className="flex w-full items-center justify-between px-1">
         <div className="flex items-center gap-1.5">
@@ -330,17 +457,31 @@ export function GameScreen({
             {best.toLocaleString('en-US')}
           </span>
         </div>
-        <button
-          type="button"
-          aria-label="Settings"
-          onClick={() => {
-            sfx.click();
-            setShowSettings(true);
-          }}
-          className="rounded-lg p-1.5 text-white/90 transition active:scale-90 hover:bg-white/10"
-        >
-          <GearIcon size={24} />
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            aria-label={sound ? 'Mute sound' : 'Unmute sound'}
+            onClick={() => {
+              sfx.unlock();
+              sfx.click();
+              onToggleSound();
+            }}
+            className="rounded-lg p-1.5 text-white/90 transition active:scale-90 hover:bg-white/10"
+          >
+            {sound ? <Volume2 size={24} /> : <VolumeX size={24} />}
+          </button>
+          <button
+            type="button"
+            aria-label="Settings"
+            onClick={() => {
+              sfx.click();
+              setShowSettings(true);
+            }}
+            className="rounded-lg p-1.5 text-white/90 transition active:scale-90 hover:bg-white/10"
+          >
+            <GearIcon size={24} />
+          </button>
+        </div>
       </div>
 
       {/* score with diamond */}
@@ -349,7 +490,7 @@ export function GameScreen({
         <span
           key={score}
           className="bb-score-bump relative text-[40px] font-bold leading-none text-white"
-          style={{ textShadow: '0 3px 2px rgba(0,0,0,0.45)' }}
+          style={{ textShadow: '0 3px 2px rgba(0,0,0,0.4), 0 0 16px rgba(255,255,255,0.35)' }}
         >
           {score.toLocaleString('en-US')}
         </span>
@@ -364,9 +505,9 @@ export function GameScreen({
               {score} / {target}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-black/30 shadow-inner">
+          <div className="h-2.5 overflow-hidden rounded-full bg-white/25 shadow-inner ring-1 ring-white/40">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#FFD54F] to-[#FF9800] transition-[width] duration-300"
+              className="bb-progress-fill h-full rounded-full"
               style={{ width: `${progress * 100}%` }}
             />
           </div>
@@ -374,110 +515,114 @@ export function GameScreen({
       )}
 
       {/* board */}
-      <div className="bb-board-panel p-2" style={{ width: 'min(94vw, 55dvh, 500px)' }}>
-        <div className="relative">
-          <div
-            ref={gridRef}
-            className="grid"
-            style={{ gridTemplateColumns: `repeat(${N}, 1fr)`, gap: GAP, touchAction: 'none' }}
-          >
-            {board.map((row, r) =>
-              row.map((color, c) =>
-                color !== null ? (
-                  <div
-                    key={`${r}-${c}`}
-                    className="bb-block"
-                    style={{ width: cellSize, height: cellSize, background: COLORS[color].base }}
-                  />
-                ) : (
-                  <div key={`${r}-${c}`} className="bb-cell-empty" style={{ width: cellSize, height: cellSize }} />
+      <div className="bb-shake-host w-full" style={{ width: 'min(94vw, 55dvh, 500px)' }}>
+        <div key={shakeKey} className={`bb-board-panel p-2 ${shakeKey > 0 ? 'bb-shake' : ''}`}>
+          <div className="relative">
+            <div
+              ref={gridRef}
+              className="grid"
+              style={{ gridTemplateColumns: `repeat(${N}, 1fr)`, gap: GAP, touchAction: 'none' }}
+            >
+              {board.map((row, r) =>
+                row.map((color, c) =>
+                  color !== null ? (
+                    <div
+                      key={`${r}-${c}`}
+                      className="bb-block"
+                      data-face={(r * 3 + c) % 3}
+                      style={{ width: cellSize, height: cellSize, background: COLORS[color].base }}
+                    />
+                  ) : (
+                    <div
+                      key={`${r}-${c}`}
+                      className="bb-cell-empty"
+                      style={{ width: cellSize, height: cellSize }}
+                    />
+                  )
                 )
-              )
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* overlays: preview + fx (aligned to grid) */}
-          <div className="pointer-events-none absolute inset-0">
-            {drag?.valid &&
-              sh &&
-              sh.cells.map(([dr, dc], i) => (
+            {/* overlays: preview + fx (aligned to grid) */}
+            <div className="pointer-events-none absolute inset-0">
+              {drag?.valid &&
+                sh &&
+                sh.cells.map(([dr, dc], i) => (
+                  <div
+                    key={`pv-${i}`}
+                    className="bb-preview absolute"
+                    style={{
+                      left: (drag.c0 + dc) * drag.step,
+                      top: (drag.r0 + dr) * drag.step,
+                      width: drag.cell,
+                      height: drag.cell,
+                      background: COLORS[drag.colorIdx].base,
+                    }}
+                  />
+                ))}
+              {drag?.valid &&
+                drag.preview &&
+                drag.preview.rows.map((full, r) =>
+                  full ? (
+                    <div
+                      key={`lr-${r}`}
+                      className="bb-line-hint absolute"
+                      style={{ left: 0, top: r * drag.step, width: N * drag.step - GAP, height: drag.cell }}
+                    />
+                  ) : null
+                )}
+              {drag?.valid &&
+                drag.preview &&
+                drag.preview.cols.map((full, c) =>
+                  full ? (
+                    <div
+                      key={`lc-${c}`}
+                      className="bb-line-hint absolute"
+                      style={{ left: c * drag.step, top: 0, width: drag.cell, height: N * drag.step - GAP }}
+                    />
+                  ) : null
+                )}
+              {flashKey > 0 && <div key={flashKey} className="bb-theme-flash absolute inset-0 rounded-2xl" />}
+              {pops.map((p) => (
                 <div
-                  key={`pv-${i}`}
-                  className="absolute rounded-[24%]"
+                  key={`pop-${p.id}-${p.r}-${p.c}`}
+                  className="bb-pop absolute"
                   style={{
-                    left: (drag.c0 + dc) * drag.step,
-                    top: (drag.r0 + dr) * drag.step,
-                    width: drag.cell,
-                    height: drag.cell,
-                    background: COLORS[drag.colorIdx].base,
-                    opacity: 0.55,
-                    border: '2px solid rgba(255,255,255,0.9)',
+                    left: p.c * stepNow,
+                    top: p.r * stepNow,
+                    width: cellSize,
+                    height: cellSize,
+                    background: COLORS[p.color].base,
                   }}
                 />
               ))}
-            {drag?.valid &&
-              drag.preview &&
-              drag.preview.rows.map((full, r) =>
-                full ? (
-                  <div
-                    key={`lr-${r}`}
-                    className="bb-line-hint absolute"
-                    style={{ left: 0, top: r * drag.step, width: N * drag.step - GAP, height: drag.cell }}
-                  />
-                ) : null
-              )}
-            {drag?.valid &&
-              drag.preview &&
-              drag.preview.cols.map((full, c) =>
-                full ? (
-                  <div
-                    key={`lc-${c}`}
-                    className="bb-line-hint absolute"
-                    style={{ left: c * drag.step, top: 0, width: drag.cell, height: N * drag.step - GAP }}
-                  />
-                ) : null
-              )}
-            {pops.map((p) => (
-              <div
-                key={`pop-${p.id}-${p.r}-${p.c}`}
-                className="bb-pop absolute rounded-[24%]"
-                style={{
-                  left: p.c * stepNow,
-                  top: p.r * stepNow,
-                  width: cellSize,
-                  height: cellSize,
-                  background: COLORS[p.color].base,
-                }}
-              />
-            ))}
-            {popups.map((p) => (
-              <div
-                key={`txt-${p.id}`}
-                className={`bb-float absolute font-bold ${p.big ? 'text-3xl' : 'text-xl'} ${
-                  p.big ? 'text-[#FFE082]' : 'text-white'
-                }`}
-                style={{
-                  left: p.x,
-                  top: p.y,
-                  transform: 'translate(-50%, -50%)',
-                  textShadow: '0 2px 0 rgba(0,0,0,0.4), 0 0 12px rgba(255,255,255,0.35)',
-                }}
-              >
-                {p.text}
-              </div>
-            ))}
-          </div>
-
-          {/* combo banner */}
-          {combo && (
-            <div
-              key={combo.id}
-              className="bb-combo pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-4xl font-bold italic text-[#FFE082]"
-              style={{ textShadow: '0 3px 0 #C05A00, 0 6px 14px rgba(0,0,0,0.5)' }}
-            >
-              {combo.text}
+              {popups.map((p) => (
+                <div
+                  key={`txt-${p.id}`}
+                  className={`bb-float absolute font-bold ${p.big ? 'text-2xl' : 'text-xl'} ${
+                    p.big ? 'bb-float-big' : ''
+                  }`}
+                  style={{
+                    left: p.x,
+                    top: p.y,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  {p.text}
+                </div>
+              ))}
             </div>
-          )}
+
+            {/* combo banner */}
+            {combo && (
+              <div
+                key={combo.id}
+                className="bb-combo pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-4xl font-bold italic"
+              >
+                {combo.text}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -488,7 +633,7 @@ export function GameScreen({
           return (
             <div
               key={`slot-${i}`}
-              className="flex items-center justify-center rounded-xl"
+              className="flex items-center justify-center rounded-2xl"
               style={{ height: cellSize * 3.05, touchAction: 'none' }}
               onPointerDown={(e) => p && onPointerDown(e, i)}
               role="button"
@@ -496,13 +641,14 @@ export function GameScreen({
             >
               {p && piece && drag?.pieceIdx !== i && (
                 <div
-                  className="grid cursor-grab"
+                  className="bb-tray-piece grid cursor-grab"
                   style={{ gridTemplateColumns: `repeat(${piece.w}, ${trayCell}px)`, gap: 2 }}
                 >
                   {piece.cells.map(([r, c], j) => (
                     <div
                       key={j}
                       className="bb-block-sm"
+                      data-face={j % 3}
                       style={{
                         width: trayCell,
                         height: trayCell,
@@ -529,13 +675,14 @@ export function GameScreen({
             display: 'grid',
             gridTemplateColumns: `repeat(${sh.w}, ${drag.cell}px)`,
             gap: GAP,
-            filter: 'drop-shadow(0 12px 10px rgba(0,0,0,0.4))',
+            filter: 'drop-shadow(0 12px 10px rgba(0,0,0,0.35))',
           }}
         >
           {sh.cells.map(([r, c], j) => (
             <div
               key={j}
               className="bb-block"
+              data-face={0}
               style={{
                 width: drag.cell,
                 height: drag.cell,

@@ -12,8 +12,11 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #1565d8;
+  --background: #ffd9ef;
   --foreground: #ffffff;
+  --panel: #b34f91;
+  --cell: #cf6fae;
+  --accent: #ff5fb0;
 }
 
 @layer base {
@@ -29,66 +32,184 @@
   body {
     @apply text-foreground;
     font-family: var(--font-fredoka), "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-    background: #1565d8;
+    background: #ffd9ef;
   }
 }
 
-/* ---------- backgrounds ---------- */
+/* ---------- theme-aware board ---------- */
 
-.bb-bg-blue {
-  background:
-    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0) 32%),
-    radial-gradient(rgba(255, 255, 255, 0.07) 1.6px, transparent 1.6px),
-    linear-gradient(180deg, #3f8cff 0%, #1b62d6 52%, #0d4cb4 100%);
-  background-size: auto, 26px 26px, auto;
-}
-
-.bb-bg-brown {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.10) 0, rgba(255, 255, 255, 0) 38%),
-    radial-gradient(rgba(0, 0, 0, 0.05) 1.4px, transparent 1.4px),
-    linear-gradient(180deg, #a97c5b 0%, #8a5f45 46%, #6f4a33 100%);
-  background-size: auto, 24px 24px, auto;
-}
-
-/* ---------- blocks ---------- */
-
-.bb-block {
-  border-radius: 24%;
+.bb-board-panel {
+  background: var(--panel);
+  border-radius: 20px;
   box-shadow:
-    inset 0 3px 0 rgba(255, 255, 255, 0.5),
-    inset 3px 0 0 rgba(255, 255, 255, 0.22),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.26),
-    inset -3px 0 0 rgba(0, 0, 0, 0.14),
-    0 2px 3px rgba(0, 0, 0, 0.3);
-}
-
-.bb-block-sm {
-  border-radius: 24%;
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.5),
-    inset 2px 0 0 rgba(255, 255, 255, 0.22),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.26),
-    inset -2px 0 0 rgba(0, 0, 0, 0.14),
-    0 1px 2px rgba(0, 0, 0, 0.25);
+    inset 0 3px 10px rgba(0, 0, 0, 0.28),
+    0 8px 0 rgba(0, 0, 0, 0.12),
+    0 14px 28px rgba(80, 30, 60, 0.28),
+    0 0 0 3px rgba(255, 255, 255, 0.35);
+  transition: background 0.9s ease;
 }
 
 .bb-cell-empty {
   border-radius: 24%;
-  background: #6b4a33;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: var(--cell);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  transition: background 0.9s ease;
 }
 
-.bb-board-panel {
-  background: #4a2f1f;
-  border-radius: 18px;
+/* ---------- kawaii blocks ---------- */
+
+.bb-block {
+  position: relative;
+  border-radius: 24%;
   box-shadow:
-    inset 0 3px 10px rgba(0, 0, 0, 0.45),
-    0 6px 14px rgba(0, 0, 0, 0.28),
-    0 0 0 2px rgba(255, 255, 255, 0.06);
+    inset 0 3px 0 rgba(255, 255, 255, 0.55),
+    inset 3px 0 0 rgba(255, 255, 255, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.18),
+    inset -3px 0 0 rgba(0, 0, 0, 0.10),
+    0 2px 3px rgba(0, 0, 0, 0.22);
+  animation: bb-place-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ---------- buttons ---------- */
+.bb-block-sm {
+  position: relative;
+  border-radius: 24%;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    inset 2px 0 0 rgba(255, 255, 255, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.18),
+    inset -2px 0 0 rgba(0, 0, 0, 0.10),
+    0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* face = 2 eyes + 2 blush cheeks painted with layered radial gradients */
+.bb-block::before,
+.bb-block-sm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 32% 40%, #4a2540 0 7.5%, transparent 8.5%),
+    radial-gradient(circle at 68% 40%, #4a2540 0 7.5%, transparent 8.5%),
+    radial-gradient(ellipse at 19% 54%, rgba(214, 51, 108, 0.42) 0 6.5%, transparent 7.5%),
+    radial-gradient(ellipse at 81% 54%, rgba(214, 51, 108, 0.42) 0 6.5%, transparent 7.5%);
+}
+
+/* open smiling mouth */
+.bb-block::after,
+.bb-block-sm::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 39%;
+  width: 22%;
+  height: 17%;
+  pointer-events: none;
+  background: radial-gradient(ellipse 135% 125% at 50% 0%, #4a2540 57%, transparent 60%);
+  border-radius: 0 0 30% 30%;
+}
+
+/* face variants */
+.bb-block[data-face='1']::before,
+.bb-block-sm[data-face='1']::before {
+  background:
+    radial-gradient(circle at 36% 37%, #4a2540 0 7%, transparent 8%),
+    radial-gradient(circle at 64% 37%, #4a2540 0 7%, transparent 8%),
+    radial-gradient(ellipse at 22% 50%, rgba(214, 51, 108, 0.35) 0 6%, transparent 7%),
+    radial-gradient(ellipse at 78% 50%, rgba(214, 51, 108, 0.35) 0 6%, transparent 7%);
+}
+.bb-block[data-face='1']::after,
+.bb-block-sm[data-face='1']::after {
+  top: 52%;
+  left: 41%;
+  width: 18%;
+  height: 14%;
+}
+
+.bb-block[data-face='2']::before,
+.bb-block-sm[data-face='2']::before {
+  background:
+    radial-gradient(circle at 29% 42%, #4a2540 0 8%, transparent 9%),
+    radial-gradient(circle at 71% 42%, #4a2540 0 8%, transparent 9%),
+    radial-gradient(ellipse at 16% 57%, rgba(214, 51, 108, 0.46) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 84% 57%, rgba(214, 51, 108, 0.46) 0 7%, transparent 8%);
+}
+.bb-block[data-face='2']::after,
+.bb-block-sm[data-face='2']::after {
+  top: 48%;
+  left: 36%;
+  width: 28%;
+  height: 21%;
+}
+
+@keyframes bb-place-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.4;
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* block flying away happily on clear */
+.bb-pop {
+  border-radius: 24%;
+  z-index: 3;
+  box-shadow:
+    0 0 0 2.5px rgba(255, 255, 255, 0.95),
+    0 0 18px rgba(255, 255, 255, 0.95);
+  animation: bb-pop 0.6s cubic-bezier(0.22, 0.9, 0.36, 1.2) forwards;
+}
+.bb-pop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 32% 40%, #4a2540 0 7.5%, transparent 8.5%),
+    radial-gradient(circle at 68% 40%, #4a2540 0 7.5%, transparent 8.5%);
+}
+.bb-pop::after {
+  content: '';
+  position: absolute;
+  top: 46%;
+  left: 33%;
+  width: 34%;
+  height: 26%;
+  background: radial-gradient(ellipse 135% 125% at 50% 0%, #4a2540 57%, transparent 60%);
+  border-radius: 0 0 30% 30%;
+}
+
+@keyframes bb-pop {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.28) rotate(-7deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.05) rotate(14deg) translateY(-14px);
+    opacity: 0;
+  }
+}
+
+/* drop preview */
+.bb-preview {
+  border-radius: 24%;
+  opacity: 0.55;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.55);
+}
+
+/* ---------- candy buttons ---------- */
 
 .bb-btn {
   display: flex;
@@ -110,28 +231,36 @@
   filter: brightness(1.06);
 }
 
-.bb-btn-orange {
-  background: linear-gradient(180deg, #ffb545 0%, #fb8c00 100%);
-  box-shadow: 0 4px 0 #d96e00, 0 8px 16px rgba(0, 0, 0, 0.22);
+.bb-btn-pink {
+  background: linear-gradient(180deg, #ff9dcb 0%, #f05fa4 100%);
+  box-shadow: 0 4px 0 #d14b8c, 0 8px 16px rgba(0, 0, 0, 0.18);
 }
-.bb-btn-orange:active {
-  box-shadow: 0 2px 0 #d96e00, 0 4px 10px rgba(0, 0, 0, 0.22);
+.bb-btn-pink:active {
+  box-shadow: 0 2px 0 #d14b8c, 0 4px 10px rgba(0, 0, 0, 0.18);
 }
 
-.bb-btn-green {
-  background: linear-gradient(180deg, #43dd85 0%, #1fae6b 100%);
-  box-shadow: 0 4px 0 #178a55, 0 8px 16px rgba(0, 0, 0, 0.22);
+.bb-btn-peach {
+  background: linear-gradient(180deg, #ffb866 0%, #ff8a3d 100%);
+  box-shadow: 0 4px 0 #e06e1f, 0 8px 16px rgba(0, 0, 0, 0.18);
 }
-.bb-btn-green:active {
-  box-shadow: 0 2px 0 #178a55, 0 4px 10px rgba(0, 0, 0, 0.22);
+.bb-btn-peach:active {
+  box-shadow: 0 2px 0 #e06e1f, 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.bb-btn-mint {
+  background: linear-gradient(180deg, #6fe3a8 0%, #2fbf7f 100%);
+  box-shadow: 0 4px 0 #1f9a63, 0 8px 16px rgba(0, 0, 0, 0.18);
+}
+.bb-btn-mint:active {
+  box-shadow: 0 2px 0 #1f9a63, 0 4px 10px rgba(0, 0, 0, 0.18);
 }
 
 .bb-btn-sky {
-  background: linear-gradient(180deg, #54c8fb 0%, #1e9be0 100%);
-  box-shadow: 0 4px 0 #1679b4, 0 8px 16px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(180deg, #7fd0ff 0%, #3b9be8 100%);
+  box-shadow: 0 4px 0 #2b7dc0, 0 8px 16px rgba(0, 0, 0, 0.18);
 }
 .bb-btn-sky:active {
-  box-shadow: 0 2px 0 #1679b4, 0 4px 10px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 2px 0 #2b7dc0, 0 4px 10px rgba(0, 0, 0, 0.18);
 }
 
 /* ---------- logo ---------- */
@@ -151,7 +280,24 @@
   -webkit-text-stroke: 2px rgba(255, 255, 255, 0.92);
   paint-order: stroke fill;
   letter-spacing: 0.03em;
-  animation: bb-bounce 2.6s ease-in-out 0.7s infinite;
+}
+
+.bb-logo-crown {
+  animation: bb-rock 3.2s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+@keyframes bb-rock {
+  0%,
+  100% {
+    transform: translateX(-58%) rotate(-7deg);
+  }
+  50% {
+    transform: translateX(-58%) rotate(5deg);
+  }
+}
+
+.bb-logo-spark {
+  animation: bb-twinkle 2.4s ease-in-out infinite;
 }
 
 @keyframes bb-bounce {
@@ -184,28 +330,13 @@
   }
 }
 
-.bb-pop {
-  animation: bb-pop 0.5s ease-out forwards;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.9);
-}
-@keyframes bb-pop {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  35% {
-    transform: scale(1.22);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.1);
-    opacity: 0;
-  }
-}
-
 .bb-float {
   animation: bb-float 0.95s ease-out forwards;
   pointer-events: none;
+  color: #fff;
+  text-shadow:
+    0 2px 0 rgba(90, 30, 60, 0.35),
+    0 0 10px rgba(255, 255, 255, 0.45);
 }
 @keyframes bb-float {
   0% {
@@ -222,7 +353,24 @@
   }
 }
 
+.bb-float-big {
+  font-size: 1.7rem;
+  color: #fff;
+  -webkit-text-stroke: 1px rgba(225, 78, 126, 0.9);
+  paint-order: stroke fill;
+  text-shadow:
+    0 3px 0 rgba(225, 78, 126, 0.85),
+    0 0 16px rgba(255, 160, 210, 0.9);
+}
+
 .bb-combo {
+  color: #ff5fa8;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.95);
+  paint-order: stroke fill;
+  text-shadow:
+    0 4px 0 #ffffff,
+    0 0 20px rgba(255, 140, 200, 0.85),
+    0 8px 16px rgba(90, 30, 60, 0.35);
   animation: bb-combo 1s ease-out forwards;
 }
 @keyframes bb-combo {
@@ -248,7 +396,7 @@
 
 .bb-line-hint {
   border-radius: 24%;
-  background: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.42);
   animation: bb-hint 0.55s ease-in-out infinite alternate;
 }
 @keyframes bb-hint {
@@ -259,6 +407,51 @@
     opacity: 0.95;
   }
 }
+
+/* screen shake on big blasts */
+.bb-shake {
+  animation: bb-shake 0.42s ease-in-out;
+}
+@keyframes bb-shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-6px, 2px) rotate(-0.6deg);
+  }
+  40% {
+    transform: translate(5px, -3px) rotate(0.5deg);
+  }
+  60% {
+    transform: translate(-4px, 2px) rotate(-0.4deg);
+  }
+  80% {
+    transform: translate(3px, -1px) rotate(0.2deg);
+  }
+}
+
+/* white bloom when the world re-themes */
+.bb-theme-flash {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 72%);
+  animation: bb-flash 0.6s ease-out forwards;
+}
+@keyframes bb-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+/* ---------- modal ---------- */
 
 .bb-modal-in {
   animation: bb-modal 0.22s ease-out;
@@ -295,4 +488,98 @@
   to {
     transform: scale(1.07) rotate(1deg);
   }
+}
+
+/* ---------- decorations & mascot ---------- */
+
+.bb-drift-a {
+  animation: bb-drift 9s ease-in-out infinite;
+}
+.bb-drift-b {
+  animation: bb-drift 12s ease-in-out 1.2s infinite;
+}
+@keyframes bb-drift {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-16px) translateX(9px);
+  }
+}
+
+.bb-float-slow {
+  animation: bb-bob 5s ease-in-out infinite;
+}
+.bb-twinkle {
+  animation: bb-twinkle 2.8s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes bb-twinkle {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes bb-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.bb-mascot-bob {
+  animation: bb-bob 3.4s ease-in-out infinite;
+}
+.bb-mascot-bounce {
+  animation: bb-mascot-hop 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+@keyframes bb-mascot-hop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-12px) rotate(-3deg);
+  }
+  70% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+.bb-mascot-wobble {
+  animation: bb-mascot-wobble 2.2s ease-in-out infinite;
+}
+@keyframes bb-mascot-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(4deg);
+  }
+}
+
+/* ---------- tray & progress ---------- */
+
+.bb-tray-piece {
+  filter: drop-shadow(0 5px 6px rgba(90, 30, 60, 0.28));
+  animation: bb-bob 3.6s ease-in-out infinite;
+}
+
+.bb-progress-fill {
+  background: linear-gradient(90deg, #ffd43b 0%, #ff8cc8 100%);
+  box-shadow: 0 0 8px rgba(255, 170, 215, 0.85);
+  transition: width 0.3s ease;
 }

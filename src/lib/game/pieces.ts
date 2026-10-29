@@ -86,16 +86,16 @@ export const SHAPES: Shape[] = DEFS.map((d, i) => parse(d[0], d[1], i));
 
 const TOTAL_WEIGHT = SHAPES.reduce((s, sh) => s + sh.weight, 0);
 
-/** Block Blast-like vivid block palette. */
+/** Blocky Pop! candy palette — bright pastels that kawaii faces love. */
 export const COLORS: Array<{ base: string; light: string; dark: string }> = [
-  { base: '#4CC94C', light: '#8FE88F', dark: '#2E9E2E' }, // green
-  { base: '#FFA726', light: '#FFCC80', dark: '#E07C00' }, // orange
-  { base: '#FFD54F', light: '#FFECB3', dark: '#E6A800' }, // yellow
-  { base: '#EF5350', light: '#FF8A80', dark: '#C62828' }, // red
-  { base: '#42A5F5', light: '#90CAF9', dark: '#1565C0' }, // blue
-  { base: '#AB47BC', light: '#CE93D8', dark: '#7B1FA2' }, // purple
-  { base: '#26C6DA', light: '#80DEEA', dark: '#0097A7' }, // teal
-  { base: '#EC407A', light: '#F48FB1', dark: '#AD1457' }, // pink
+  { base: '#5ED77A', light: '#A8F0B8', dark: '#2FA556' }, // apple green
+  { base: '#FFA45C', light: '#FFD0A3', dark: '#F07E1F' }, // peachy orange
+  { base: '#FFD84D', light: '#FFF0A8', dark: '#F0B400' }, // banana yellow
+  { base: '#FF6B81', light: '#FFA8B5', dark: '#E93A56' }, // strawberry
+  { base: '#6FB6FF', light: '#B0DBFF', dark: '#2F8BE8' }, // blueberry
+  { base: '#C08BFF', light: '#E0C4FF', dark: '#9550EA' }, // grape
+  { base: '#4ED8DA', light: '#A0EFEF', dark: '#1FA9AB' }, // mint teal
+  { base: '#FF8CC8', light: '#FFC3E2', dark: '#F05FA4' }, // bubblegum pink
 ];
 
 export function randomShapeIdx(): number {

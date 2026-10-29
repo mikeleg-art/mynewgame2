@@ -38,8 +38,8 @@ export function initTelegram(): void {
     app.ready();
     app.expand();
     app.disableVerticalSwipes?.();
-    app.setHeaderColor?.('#1565d8');
-    app.setBackgroundColor?.('#1565d8');
+    app.setHeaderColor?.('#f57fc0');
+    app.setBackgroundColor?.('#f57fc0');
   } catch {
     /* older clients */
   }
@@ -69,6 +69,18 @@ export function hapticSelect(enabled = true): void {
     tg()?.HapticFeedback?.selectionChanged();
   } catch {
     /* noop */
+  }
+}
+
+/** Keep the Telegram client chrome in sync with the current cute theme. */
+export function setTgColor(color: string): void {
+  const app = tg();
+  if (!app) return;
+  try {
+    app.setHeaderColor?.(color);
+    app.setBackgroundColor?.(color);
+  } catch {
+    /* older clients */
   }
 }
 

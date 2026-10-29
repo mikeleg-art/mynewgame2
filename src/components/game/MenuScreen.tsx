@@ -2,6 +2,7 @@
 
 import { AlarmClock, Gamepad2, Infinity as InfinityIcon } from 'lucide-react';
 import { Logo } from './Logo';
+import { Mascot } from './Mascot';
 import { MedalIcon, WinBadge } from './icons';
 
 type Props = {
@@ -21,18 +22,23 @@ export function MenuScreen({ dailyCount, best, onAdventure, onClassic, onMoreGam
         <span className="text-sm font-bold text-white drop-shadow">Medal</span>
       </div>
 
-      <div className="mt-[6vh] flex w-full flex-1 flex-col items-center justify-start">
+      {/* Mascot peeking — top left */}
+      <div className="absolute left-3 top-2" aria-hidden="true">
+        <Mascot size={64} mood="happy" className="bb-mascot-bob" />
+      </div>
+
+      <div className="mt-[5vh] flex w-full flex-1 flex-col items-center justify-start">
         <Logo />
       </div>
 
       {/* Daily victories card */}
-      <div className="w-full max-w-[340px] overflow-hidden rounded-2xl bg-white shadow-[0_6px_0_rgba(0,0,0,0.18),0_12px_24px_rgba(0,0,0,0.22)]">
-        <div className="bg-[#8B9AE8]/90 py-1.5 text-center text-[15px] font-bold text-white">
-          Consecutive Daily Victories
+      <div className="w-full max-w-[340px] overflow-hidden rounded-2xl bg-white shadow-[0_6px_0_rgba(225,78,126,0.30),0_12px_24px_rgba(107,43,84,0.22)] ring-2 ring-white">
+        <div className="bg-[#FF8CC8]/95 py-1.5 text-center text-[15px] font-bold text-white drop-shadow-sm">
+          ✿ Consecutive Daily Victories ✿
         </div>
         <div className="flex items-center justify-center gap-4 px-6 py-3.5">
           <WinBadge size={54} />
-          <span className="text-3xl font-bold text-[#3A3F63]">
+          <span className="text-3xl font-bold text-[#8C3A68]">
             <span className="text-2xl align-middle">×</span>
             {dailyCount}
           </span>
@@ -40,7 +46,7 @@ export function MenuScreen({ dailyCount, best, onAdventure, onClassic, onMoreGam
       </div>
 
       {/* Best score hint */}
-      <div className="mt-3 flex items-center gap-1.5 text-white/90" aria-label={`Best score ${best}`}>
+      <div className="mt-3 flex items-center gap-1.5 text-white/95" aria-label={`Best score ${best}`}>
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M3 8.5 7.2 12 12 5.5 16.8 12 21 8.5 19.2 17.5c-.15.8-.8 1.5-1.7 1.5H6.5c-.9 0-1.55-.7-1.7-1.5L3 8.5Z"
@@ -55,11 +61,11 @@ export function MenuScreen({ dailyCount, best, onAdventure, onClassic, onMoreGam
 
       {/* Action buttons */}
       <div className="mt-auto flex w-full max-w-[340px] flex-col gap-3.5 pt-6">
-        <button type="button" onClick={onAdventure} className="bb-btn bb-btn-orange">
+        <button type="button" onClick={onAdventure} className="bb-btn bb-btn-peach">
           <AlarmClock size={24} strokeWidth={2.6} aria-hidden="true" />
           <span>Adventure</span>
         </button>
-        <button type="button" onClick={onClassic} className="bb-btn bb-btn-green">
+        <button type="button" onClick={onClassic} className="bb-btn bb-btn-mint">
           <InfinityIcon size={28} strokeWidth={2.8} aria-hidden="true" />
           <span>Classic</span>
         </button>

@@ -56,6 +56,16 @@ export function saveSettings(s: Settings): void {
   lsSet('bb_settings', JSON.stringify(s));
 }
 
+/** Last active cute theme index. */
+export function loadThemeIdx(): number {
+  const n = parseInt(lsGet('bb_theme') ?? '0', 10) || 0;
+  return Math.max(0, Math.min(n, 5));
+}
+
+export function saveThemeIdx(idx: number): void {
+  lsSet('bb_theme', String(idx));
+}
+
 export function loadStreak(): DailyStreak {
   try {
     const raw = lsGet('bb_daily');
